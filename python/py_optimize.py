@@ -3,6 +3,15 @@ from concurrent.futures import (ThreadPoolExecutor,
                                 as_completed)
 from timeit import Timer
 from numba import jit
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
+
+
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 def func_slow(N):
@@ -43,6 +52,26 @@ def process_sample():
 
     print(sum)
 
+
+def process_group(items):
+    sum = 0
+    for i in items:
+        sum += func_slow(i)
+
+    return sum
+
+
+def process_sample_group():
+    sum = 0
+    with ProcessPoolExecutor() as executor:
+        for future in as_completed(executor.submit(process_group, g)
+                                   for g in grouper(range(100000, 101000),
+                                                    100)):
+            sum += future.result()
+
+    print(sum)
+
+
 if __name__ == '__main__':
     _func_slow = func_slow
     # test on Anaconda Python 2.7.11, i5 3.2GHz x4, 7.7GB RAM
@@ -60,6 +89,11 @@ if __name__ == '__main__':
     print('Using processes')
     print(t1.repeat(repeat=3, number=1))
     # [3.208076000213623, 3.2477550506591797, 3.2287039756774902]
+
+    t1 = Timer(lambda: process_sample_group())
+    print('Using processes (grouped data)')
+    print(t1.repeat(repeat=3, number=1))
+    # [3.6561429500579834, 3.537872076034546, 3.5214269161224365]
 
     func_slow = _func_slow
     func_slow = jit(func_slow)
@@ -80,6 +114,11 @@ if __name__ == '__main__':
     print(t1.repeat(repeat=3, number=1))
     # [0.5851070880889893, 0.7296948432922363, 0.7194869518280029]
 
+    t1 = Timer(lambda: process_sample_group())
+    print('Using processes (grouped data)')
+    print(t1.repeat(repeat=3, number=1))
+    # [0.07229804992675781, 0.07447195053100586, 0.07154178619384766]
+
     func_slow = _func_slow
     func_slow = jit(func_slow, nopython=True, nogil=True)
 
@@ -98,3 +137,8 @@ if __name__ == '__main__':
     print('Using processes')
     print(t1.repeat(repeat=3, number=1))
     # [0.5592410564422607, 0.6949498653411865, 0.7256579399108887]
+
+    t1 = Timer(lambda: process_sample_group())
+    print('Using processes (grouped data)')
+    print(t1.repeat(repeat=3, number=1))
+    # [0.07124614715576172, 0.07875490188598633, 0.07564306259155273]
