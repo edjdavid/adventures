@@ -2,7 +2,7 @@ from concurrent.futures import (ThreadPoolExecutor,
                                 ProcessPoolExecutor,
                                 as_completed)
 from timeit import Timer
-from numba import jit
+from numba import jit, vectorize
 try:
     from itertools import zip_longest
 except ImportError:
@@ -76,6 +76,13 @@ def process_sample_group(f):
     print(sum)
 
 
+def vectorize_sample(f):
+    sum = 0
+    for g in grouper(get_range(), 100):
+        sum += process_group(f, g)
+    print(sum)
+
+
 def run(f):
     # test on Anaconda Python 2.7.11, i5 3.2GHz x4, 7.7GB RAM
 
@@ -113,19 +120,28 @@ def run(f):
 
 
 if __name__ == '__main__':
-    _func_slow = func_slow
-
     print('No JIT')
     run(func_slow)
 
-    func_slow = _func_slow
-    jit_func = jit(func_slow)
+    jit_func = jit()(func_slow)
 
     print('Numba JIT')
     run(jit_func)
 
-    func_slow = _func_slow
-    jit_nogil_func = jit(func_slow, nopython=True, nogil=True)
+    jit_nogil_func = jit(nopython=True, nogil=True)(func_slow)
 
     print('Numba JIT, nopython with nogil')
     run(jit_nogil_func)
+
+    vec_auto_func = vectorize()(func_slow)
+    t1 = Timer(lambda: vectorize_sample(vec_auto_func))
+    print('Numba vectorize (default config, DUFunc)')
+    print(t1.repeat(repeat=3, number=1))
+    # [0.2374260425567627, 0.18294596672058105, 0.18335509300231934]
+
+    vec_pl_func = vectorize(['int32(int32)', 'float64(float64)'],
+                            target='parallel')(func_slow)
+    t1 = Timer(lambda: vectorize_sample(vec_pl_func))
+    print('Numba vectorize (target parallel)')
+    print(t1.repeat(repeat=3, number=1))
+    # [0.3076341152191162, 0.33128905296325684, 0.31762123107910156]
