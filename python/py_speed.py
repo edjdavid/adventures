@@ -145,13 +145,13 @@ if __name__ == '__main__':
     try:
         import pyximport
         pyximport.install()
-        import py_optimize_cython
+        import py_speed_cython
 
         print('Cython')
-        run(py_optimize_cython.func_slow)
+        run(py_speed_cython.func_slow)
 
         print('Cython, nogil')
-        run(py_optimize_cython.func_slow_nogil)
+        run(py_speed_cython.func_slow_nogil)
 
     except ImportError:
         print("Cython compiler not found. Skipping.")
@@ -167,4 +167,4 @@ if __name__ == '__main__':
     t1 = Timer(lambda: vectorize_sample(vec_pl_func))
     print('Numba vectorize (target parallel)')
     print(t1.repeat(repeat=3, number=1))
-    [0.3076341152191162, 0.33128905296325684, 0.31762123107910156]
+    # [0.3076341152191162, 0.33128905296325684, 0.31762123107910156]
