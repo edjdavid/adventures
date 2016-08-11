@@ -89,6 +89,8 @@ def run(f):
     # Normal
     # JIT
     # JIT, nopython, nogil
+    # Cython
+    # Cython, nogil
 
     t1 = Timer(lambda: seq_sample(f))
     print('Sequential run')
@@ -96,6 +98,8 @@ def run(f):
     # [10.168029069900513, 10.402216911315918, 10.611801147460938]
     # [0.24570488929748535, 0.19139814376831055, 0.18819808959960938]
     # [0.2139570713043213, 0.1826789379119873, 0.18301606178283691]
+    # [0.1870899200439453, 0.18561315536499023, 0.1863720417022705]
+    # [0.19033217430114746, 0.18671011924743652, 0.1864609718322754]
 
     t1 = Timer(lambda: thread_sample(f))
     print('Using threads')
@@ -103,6 +107,8 @@ def run(f):
     # [19.16162896156311, 20.380229949951172, 21.510963916778564]
     # [0.4485650062561035, 0.4848320484161377, 0.5402340888977051]
     # [0.09081888198852539, 0.09463310241699219, 0.09384393692016602]
+    # [0.478787899017334, 0.48709797859191895, 0.5153419971466064]
+    # [0.08079195022583008, 0.09981513023376465, 0.08110308647155762]
 
     t1 = Timer(lambda: process_sample(f))
     print('Using processes')
@@ -110,6 +116,8 @@ def run(f):
     # [3.208076000213623, 3.2477550506591797, 3.2287039756774902]
     # [0.5669829845428467, 0.6984729766845703, 0.6910841464996338]
     # [0.5363690853118896, 0.6700029373168945, 0.6537039279937744]
+    # [0.14370203018188477, 0.14115595817565918, 0.14736700057983398]
+    # [0.14898014068603516, 0.15113091468811035, 0.14404296875]
 
     t1 = Timer(lambda: process_sample_group(f))
     print('Using processes (grouped data)')
@@ -117,7 +125,8 @@ def run(f):
     # [3.6561429500579834, 3.537872076034546, 3.5214269161224365]
     # [0.07229804992675781, 0.07447195053100586, 0.07154178619384766]
     # [0.07124614715576172, 0.07875490188598633, 0.07564306259155273]
-
+    # [0.07690596580505371, 0.06988406181335449, 0.0699930191040039]
+    # [0.07497191429138184, 0.07361912727355957, 0.07271409034729004]
 
 if __name__ == '__main__':
     print('No JIT')
@@ -133,6 +142,20 @@ if __name__ == '__main__':
     print('Numba JIT, nopython with nogil')
     run(jit_nogil_func)
 
+    try:
+        import pyximport
+        pyximport.install()
+        import py_optimize_cython
+
+        print('Cython')
+        run(py_optimize_cython.func_slow)
+
+        print('Cython, nogil')
+        run(py_optimize_cython.func_slow_nogil)
+
+    except ImportError:
+        print("Cython compiler not found. Skipping.")
+
     vec_auto_func = vectorize()(func_slow)
     t1 = Timer(lambda: vectorize_sample(vec_auto_func))
     print('Numba vectorize (default config, DUFunc)')
@@ -144,4 +167,4 @@ if __name__ == '__main__':
     t1 = Timer(lambda: vectorize_sample(vec_pl_func))
     print('Numba vectorize (target parallel)')
     print(t1.repeat(repeat=3, number=1))
-    # [0.3076341152191162, 0.33128905296325684, 0.31762123107910156]
+    [0.3076341152191162, 0.33128905296325684, 0.31762123107910156]
