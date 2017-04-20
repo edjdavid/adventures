@@ -8,7 +8,7 @@ def func(N):
 ```
 #### Anaconda Python 2.7.11, i5 3.2GHz x4, 7.7GB RAM
 
-||Normal|JIT|JIT, nopython, nogil|Cython|Cython, nogil|
+|Normal|JIT|JIT, nopython, nogil|Cython|Cython, nogil|
 |---|---|---|---|---|
 |Sequential, 1 process|10.168, 10.402, 10.612|0.246, 0.191, 0.188|0.214, 0.183, 0.183|0.187, 0.186, 0.186|0.190, 0.187, 0.186|
 |10 Threads|19.161, 20.380, 21.511|0.449, 0.485, 0.540|0.090, 0.095, 0.094|0.479, 0.487, 0.515|0.081, 0.100, 0.081|
@@ -17,7 +17,7 @@ def func(N):
 
 #### Anaconda Python 3.5.1, i5 3.2GHz x4, 7.7GB RAM
 
-||Normal|JIT|JIT, nopython, nogil|Cython|Cython, nogil|
+|Normal|JIT|JIT, nopython, nogil|Cython|Cython, nogil|
 |---|---|---|---|---|
 |Sequential, 1 process|17.917, 18.070, 18.290|0.377, 0.187, 0.187|0.220, 0.188, 0.185|0.187, 0.185, 0.186|0.188, 0.185, 0.186|
 |10 Threads|25.489, 25.529, 26.120|0.321, 0.346, 0.357|0.071, 0.067, 0.072|0.312, 0.524, 0.556|0.070, 0.071, 0.071|
