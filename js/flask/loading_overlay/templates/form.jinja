@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  {{ ran }}
+  <form action="/slow" method="POST">
+    <input name="test">
+    <input type="submit" value="Submit!">
+  </form>
+  <a href="/escape">Escape the iframe</a>
+
+  <script>
+    function escapeMe(href) {
+      window.parent.location.href = href
+    }
+
+    document.querySelectorAll("a").forEach(function(elem) {
+      elem.addEventListener("click", function(e) {
+        e.preventDefault();
+        escapeMe(e.target.href);
+      })
+    })
+  </script>
+</body>
+</html>
